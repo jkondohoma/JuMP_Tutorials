@@ -74,7 +74,7 @@ import MadNLP
 
 # Create JuMP model, using Ipopt as the solver
 
-rocket = Model(Ipopt.Optimizer)
+rocket = Model(MadNLP.Optimizer)
 # set_silent(rocket)
 
 # ## Constants
