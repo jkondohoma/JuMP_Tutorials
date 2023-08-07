@@ -64,10 +64,10 @@
 
 using JuMP
 import Pkg; 
-Pkg.add("Ipopt")
-Pkg.add("Plots")
-# import Ipopt
-# import Plots
+# Pkg.add("Ipopt")
+# Pkg.add("Plots")
+import Ipopt
+import Plots
 
 # Create JuMP model, using Ipopt as the solver
 
@@ -79,9 +79,10 @@ set_silent(rocket)
 # Note that all parameters in the model have been normalized
 # to be dimensionless. See the COPS3 paper for more info.
 
+
 h_0 = 1    # Initial height
 v_0 = 0    # Initial velocity
-m_0 = 1    # Initial mass
+m_0 = 1   # Initial mass
 g_0 = 1    # Gravity at the surface
 
 T_c = 3.5  # Used for thrust
@@ -170,7 +171,11 @@ end
 
 # Solve for the control and state
 println("Solving...")
-optimize!(rocket)
+
+@time begin
+    optimize!(rocket)
+  end
+  
 solution_summary(rocket)
 
 # ## Display results
