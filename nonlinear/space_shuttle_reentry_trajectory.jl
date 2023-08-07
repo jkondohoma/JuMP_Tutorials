@@ -123,14 +123,13 @@
 
 import Pkg; 
 Pkg.add("Ipopt")
-Pkg.add("EAGO")
 Pkg.add("Plots")
 Pkg.add("Interpolations")
 
 import Ipopt
 import Interpolations
 import Plots
-import EAGO
+
 
 ## Global variables
  w = 203000.0  # weight (lb)
@@ -195,7 +194,7 @@ user_options = (
 
 ## Create JuMP model, using Ipopt as the solver
 # model = Model(optimizer_with_attributes(MadNLP.Optimizer, user_options...))
-model = Model(EAGO.Optimizer)
+model = Model(Ipopt.Optimizer)
 
 @variables(model, begin
     0 ≤ scaled_h[1:n]                # altitude (ft) / 1e5
@@ -331,6 +330,17 @@ println(
 
 using Plots
 ts = cumsum([0; value.(Δt)])[1:end-1]
+
+#-
+
+function q(h, v, a)
+    ρ(h) = ρ₀ * exp(-h / hᵣ)
+    qᵣ(h, v) = 17700 * √ρ(h) * (0.0001 * v)^3.07
+    qₐ(a) = c₀ + c₁ * rad2deg(a) + c₂ * rad2deg(a)^2 + c₃ * rad2deg(a)^3
+    ## Aerodynamic heating on the vehicle wing leading edge
+    return qₐ(a) * qᵣ(h, v)
+end
+
 plt_altitude = plot(
     ts,
     value.(scaled_h);
@@ -364,43 +374,33 @@ plot(
     size = (700, 700),
 )
 
-#-
+# plt_attack_angle = plot(
+#     ts[1:end-1],
+#     rad2deg.(value.(α)[1:end-1]);
+#     legend = nothing,
+#     title = "Angle of Attack (deg)",
+# )
+# plt_bank_angle = plot(
+#     ts[1:end-1],
+#     rad2deg.(value.(β)[1:end-1]);
+#     legend = nothing,
+#     title = "Bank Angle (deg)",
+# )
+# plt_heating = plot(
+#     ts,
+#     q.(value.(scaled_h) * 1e5, value.(scaled_v) * 1e4, value.(α));
+#     legend = nothing,
+#     title = "Heating (BTU/ft/ft/sec)",
+# )
 
-function q(h, v, a)
-    ρ(h) = ρ₀ * exp(-h / hᵣ)
-    qᵣ(h, v) = 17700 * √ρ(h) * (0.0001 * v)^3.07
-    qₐ(a) = c₀ + c₁ * rad2deg(a) + c₂ * rad2deg(a)^2 + c₃ * rad2deg(a)^3
-    ## Aerodynamic heating on the vehicle wing leading edge
-    return qₐ(a) * qᵣ(h, v)
-end
-
-plt_attack_angle = plot(
-    ts[1:end-1],
-    rad2deg.(value.(α)[1:end-1]);
-    legend = nothing,
-    title = "Angle of Attack (deg)",
-)
-plt_bank_angle = plot(
-    ts[1:end-1],
-    rad2deg.(value.(β)[1:end-1]);
-    legend = nothing,
-    title = "Bank Angle (deg)",
-)
-plt_heating = plot(
-    ts,
-    q.(value.(scaled_h) * 1e5, value.(scaled_v) * 1e4, value.(α));
-    legend = nothing,
-    title = "Heating (BTU/ft/ft/sec)",
-)
-
-plot(
-    plt_attack_angle,
-    plt_bank_angle,
-    plt_heating;
-    layout = grid(3, 1),
-    linewidth = 2,
-    size = (700, 700),
-)
+# plot(
+#     plt_attack_angle,
+#     plt_bank_angle,
+#     plt_heating;
+#     layout = grid(3, 1),
+#     linewidth = 2,
+#     size = (700, 700),
+# )
 
 #-
 
