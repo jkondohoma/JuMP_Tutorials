@@ -121,14 +121,21 @@
 #     having position and velocity errors with orders of magnitude $10^4$ ft and
 #     $10^2$ ft/sec, respectively.
 
-using JuMP
-import Interpolations
+import Pkg; 
+Pkg.add("Ipopt")
+Pkg.add("MadNLP")
+Pkg.add("Plots")
+Pkg.add("Interpolations")
+
 import Ipopt
+import Interpolations
+import Plots
+import MadNLP
 
 ## Global variables
-const w = 203000.0  # weight (lb)
-const g₀ = 32.174    # acceleration (ft/sec^2)
-const m = w / g₀    # mass (slug)
+ w = 203000.0  # weight (lb)
+ g₀ = 32.174    # acceleration (ft/sec^2)
+ m = w / g₀    # mass (slug)
 
 ## Aerodynamic and atmospheric forces on the vehicle
 const ρ₀ = 0.002378
@@ -163,7 +170,7 @@ const v_t = 0.25         # velocity (ft/sec) / 1e4
 const γ_t = deg2rad(-5)  # flight path angle (rad)
 
 ## Number of mesh points (knots) to be used
-const n = 503
+n = 503
 
 ## Integration scheme to be used for the dynamics
 const integration_rule = "rectangular"
@@ -303,14 +310,17 @@ end
 ## Objective: Maximize cross-range
 @objective(model, Max, θ[n])
 
-set_silent(model)  # Hide solver's verbose output
-optimize!(model)  # Solve for the control and state
+# set_silent(model)  # Hide solver's verbose output
+@time begin
+    optimize!(model)  # Solve for the control and state
+  end
+
 @assert termination_status(model) == LOCALLY_SOLVED
 
 ## Show final cross-range of the solution
 println(
     "Final latitude θ = ",
-    round(objective_value(model) |> rad2deg; digits = 2),
+    round(objective_value(model) |> rad2deg; digits =10),
     "°",
 )
 
