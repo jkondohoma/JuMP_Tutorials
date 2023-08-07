@@ -123,14 +123,14 @@
 
 import Pkg; 
 Pkg.add("Ipopt")
-Pkg.add("MadNLP")
+Pkg.add("EAGO")
 Pkg.add("Plots")
 Pkg.add("Interpolations")
 
 import Ipopt
 import Interpolations
 import Plots
-import MadNLP
+import EAGO
 
 ## Global variables
  w = 203000.0  # weight (lb)
@@ -194,7 +194,8 @@ user_options = (
 )
 
 ## Create JuMP model, using Ipopt as the solver
-model = Model(optimizer_with_attributes(Ipopt.Optimizer, user_options...))
+# model = Model(optimizer_with_attributes(MadNLP.Optimizer, user_options...))
+model = Model(EAGO.Optimizer)
 
 @variables(model, begin
     0 ≤ scaled_h[1:n]                # altitude (ft) / 1e5
@@ -403,14 +404,14 @@ plot(
 
 #-
 
-plot(
-    rad2deg.(value.(ϕ)),
-    rad2deg.(value.(θ)),
-    value.(scaled_h);
-    linewidth = 2,
-    legend = nothing,
-    title = "Space Shuttle Reentry Trajectory",
-    xlabel = "Longitude (deg)",
-    ylabel = "Latitude (deg)",
-    zlabel = "Altitude (100,000 ft)",
-)
+# plot(
+#     rad2deg.(value.(ϕ)),
+#     rad2deg.(value.(θ)),
+#     value.(scaled_h);
+#     linewidth = 2,
+#     legend = nothing,
+#     title = "Space Shuttle Reentry Trajectory",
+#     xlabel = "Longitude (deg)",
+#     ylabel = "Latitude (deg)",
+#     zlabel = "Altitude (100,000 ft)",
+# )
