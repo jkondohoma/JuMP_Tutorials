@@ -1,0 +1,3 @@
+Solving...
+ 16.173043 seconds (21.79 M allocations: 5.233 GiB, 4.12% gc time, 93.36% compilation time: 7% of which was recompilation)
+Max height: 1.0128340648321115

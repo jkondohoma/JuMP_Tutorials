@@ -64,14 +64,17 @@
 
 using JuMP
 import Pkg; 
-# Pkg.add("Ipopt")
-# Pkg.add("Plots")
+Pkg.add("Ipopt")
+Pkg.add("MadNLP")
+Pkg.add("Plots")
+
 import Ipopt
 import Plots
+import MadNLP
 
 # Create JuMP model, using Ipopt as the solver
 
-rocket = Model(Ipopt.Optimizer)
+rocket = Model(MadNLP.Optimizer)
 set_silent(rocket)
 
 # ## Constants
