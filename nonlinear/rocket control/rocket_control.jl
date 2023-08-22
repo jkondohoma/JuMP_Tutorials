@@ -67,21 +67,21 @@ import Pkg;
 Pkg.add("Ipopt")
 Pkg.add("MadNLP")
 Pkg.add("Plots")
+Pkg.add("NLopt")
 
 import Ipopt
+import MadNLP
 import Plots
 import MadNLP
+import NLopt
 
 # Create JuMP model, using Ipopt as the solver
 
-rocket = Model(MadNLP.Optimizer)
+rocket = Model(NLopt.Optimizer)
+# set_attributes(rocket, "tol" => 1e-4, "max_iter" =>5)
 # set_silent(rocket)
 
 # ## Constants
-
-# Note that all parameters in the model have been normalized
-# to be dimensionless. See the COPS3 paper for more info.
-
 
 h_0 = 1    # Initial height
 v_0 = 0    # Initial velocity
@@ -182,8 +182,13 @@ println("Solving...")
 solution_summary(rocket)
 
 # ## Display results
+# max_height = objective_value(rocket);
+
 
 println("Max height: ", objective_value(rocket))
+# 
+
+# round(objective_value(rocket) |> digits =6)
 
 #-
 
