@@ -121,14 +121,18 @@
 #     having position and velocity errors with orders of magnitude $10^4$ ft and
 #     $10^2$ ft/sec, respectively.
 
+using JuMP
 import Pkg; 
 Pkg.add("Ipopt")
+Pkg.add("MadNLP")
 Pkg.add("Plots")
-Pkg.add("Interpolations")
+Pkg.add("NLopt")
 
 import Ipopt
-import Interpolations
+import MadNLP
 import Plots
+import MadNLP
+import NLopt
 
 
 ## Global variables
@@ -195,6 +199,7 @@ user_options = (
 ## Create JuMP model, using Ipopt as the solver
 # model = Model(optimizer_with_attributes(MadNLP.Optimizer, user_options...))
 model = Model(Ipopt.Optimizer)
+set_attributes(model, "tol" => 1e-5, "max_iter" =>90)
 
 @variables(model, begin
     0 ≤ scaled_h[1:n]                # altitude (ft) / 1e5
@@ -374,35 +379,37 @@ plot(
     size = (700, 700),
 )
 
-# plt_attack_angle = plot(
-#     ts[1:end-1],
-#     rad2deg.(value.(α)[1:end-1]);
-#     legend = nothing,
-#     title = "Angle of Attack (deg)",
-# )
-# plt_bank_angle = plot(
-#     ts[1:end-1],
-#     rad2deg.(value.(β)[1:end-1]);
-#     legend = nothing,
-#     title = "Bank Angle (deg)",
-# )
-# plt_heating = plot(
-#     ts,
-#     q.(value.(scaled_h) * 1e5, value.(scaled_v) * 1e4, value.(α));
-#     legend = nothing,
-#     title = "Heating (BTU/ft/ft/sec)",
-# )
+plt_attack_angle = plot(
+    ts[1:end-1],
+    rad2deg.(value.(α)[1:end-1]);
+    legend = nothing,
+    title = "Angle of Attack (deg)",
+)
+plt_bank_angle = plot(
+    ts[1:end-1],
+    rad2deg.(value.(β)[1:end-1]);
+    legend = nothing,
+    title = "Bank Angle (deg)",
+)
+plt_heating = plot(
+    ts,
+    q.(value.(scaled_h) * 1e5, value.(scaled_v) * 1e4, value.(α));
+    legend = nothing,
+    title = "Heating (BTU/ft/ft/sec)",
+)
 
-# plot(
-#     plt_attack_angle,
-#     plt_bank_angle,
-#     plt_heating;
-#     layout = grid(3, 1),
-#     linewidth = 2,
-#     size = (700, 700),
-# )
+plot(
+    plt_attack_angle,
+    plt_bank_angle,
+    plt_heating;
+    layout = grid(3, 1),
+    linewidth = 2,
+    size = (700, 700),
+)
 
-#-
+
+
+
 
 # plot(
 #     rad2deg.(value.(ϕ)),
